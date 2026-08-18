@@ -1,0 +1,68 @@
+name: Daily COMAC Report
+
+# ═════════════════════════════════════════
+# 每天北京时间 08:00 单次触发
+# UTC 时间 = 北京时间 - 8小时 → 00:00 UTC
+# ═════════════════════════════════════════
+on:
+  schedule:
+    - cron: "0 0 * * *"   # UTC 00:00 = 北京时间 08:00
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '日期 (YYYYMMDD)，留空=今天'
+        required: false
+        default: ''
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install chromium
+
+      - name: Determine target date
+        id: date
+        run: |
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            echo "target=${{ github.event.inputs.date }}" >> $GITHUB_OUTPUT
+          else
+            # 北京时间今天 = UTC + 8小时
+            TZ='Asia/Shanghai' date +'target=%Y%m%d' >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate daily report
+        run: |
+          python -c "
+          from app.news_fetcher import collect_and_generate
+          from datetime import datetime, timedelta, timezone
+          CST = timezone(timedelta(hours=8))
+          today = datetime.now(CST)
+          date_str = collect_and_generate(today)
+          print(f'Done: {date_str}')
+          "
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: comac-daily-report
+          path: output/*.pdf
+          retention-days: 30
+
+      - name: Upload HTML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: comac-daily-html
+          path: output/*.html
+          retention-days: 30
