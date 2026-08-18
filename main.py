@@ -14,13 +14,13 @@ from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import REPORT, OUTPUT_DIR, SCHEDULER
-from app.news_fetcher import (
+from config import REPORT, OUTPUT_DIR, SCHEDULER
+from news_fetcher import (
     fetch_all_news, save_cache, load_cache,
     get_today_cst, get_time_window, collect_and_generate,
 )
-from app.content_processor import enrich_all
-from app.pdf_generator import generate_report
+from content_processor import enrich_all
+from pdf_generator import generate_report
 
 CST = timezone(timedelta(hours=8))
 
