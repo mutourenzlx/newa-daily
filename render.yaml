@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: comac-daily-report
+    env: python
+    region: singapore  # 离中国近，延迟低
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt && python -m playwright install chromium
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: PYTHON_VERSION
+        value: "3.11"
+    # 健康检查
+    healthCheckPath: /api/health

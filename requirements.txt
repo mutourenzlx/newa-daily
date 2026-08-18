@@ -1,0 +1,14 @@
+# Web 框架
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+
+# PDF 生成（首选 weasyprint）
+weasyprint>=60.0
+
+# 备用 PDF 引擎
+playwright>=1.40.0
+
+# 工具库
+httpx>=0.25.0
+python-dateutil>=2.8.2
+pydantic>=2.0
